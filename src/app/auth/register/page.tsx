@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, ShieldCheck, Globe, Zap, Check, Mic, Users, Star } from "lucide-react";
@@ -154,6 +155,7 @@ export default function RegisterPage() {
                     {/* Social Login with Original Colors */}
                     <div className="grid grid-cols-2 gap-3 mb-6">
                         <button
+                            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                             className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group"
                         >
                             <GoogleIcon />
