@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
     BookOpen, Plane, Flame, Target, Trophy, Lightbulb,
-    ArrowRight, CheckCircle2, Circle, Clock, Mic, FileText, BookMarked, AudioLines
+    ArrowRight, CheckCircle2, Circle, Clock, Mic, FileText, BookMarked, AudioLines,
+    Zap, Headphones, Book
 } from "lucide-react";
 
 const fadeInUp = {
@@ -188,23 +189,26 @@ export default function DashboardPage() {
 
                     <div className="space-y-4">
                         {[
-                            { icon: "⚡", title: "Hızlı Öğrenici", desc: "3 günde 5 ünite", color: "#0A84FF" },
-                            { icon: "🎙️", title: "Konuşma Ustası", desc: "10dk AI sohbeti", color: "#5E5CE6" },
-                            { icon: "📚", title: "Kelime Avcısı", desc: "500 yeni kelime", color: "#30D158" },
-                        ].map((badge, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                                <div
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
-                                    style={{ background: `${badge.color}15`, border: `1px solid ${badge.color}20` }}
-                                >
-                                    {badge.icon}
+                            { icon: Zap, title: "Hızlı Öğrenici", desc: "3 günde 5 ünite", color: "#0A84FF" },
+                            { icon: Mic, title: "Konuşma Ustası", desc: "10dk AI sohbeti", color: "#5E5CE6" },
+                            { icon: Book, title: "Kelime Avcısı", desc: "500 yeni kelime", color: "#30D158" },
+                        ].map((badge, i) => {
+                            const Icon = badge.icon;
+                            return (
+                                <div key={i} className="flex items-center gap-3">
+                                    <div
+                                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                                        style={{ background: `${badge.color}15`, border: `1px solid ${badge.color}20` }}
+                                    >
+                                        <Icon className="w-5 h-5" style={{ color: badge.color }} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-semibold text-white truncate">{badge.title}</p>
+                                        <p className="text-[10px] text-white/30">{badge.desc}</p>
+                                    </div>
                                 </div>
-                                <div className="min-w-0">
-                                    <p className="text-xs font-semibold text-white truncate">{badge.title}</p>
-                                    <p className="text-[10px] text-white/30">{badge.desc}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     <p className="text-[10px] text-white/20 mt-4 text-center">

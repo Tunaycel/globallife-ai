@@ -5,10 +5,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import dynamic from "next/dynamic";
 import {
     Home, BookOpen, Plane, MessageCircle, BarChart3, Settings,
     ChevronLeft, Bell, Menu, X, LogOut, Flame
 } from "lucide-react";
+
+const Globe3D = dynamic(() => import("@/components/3d/Globe3D"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0A84FF]/20 to-[#5E5CE6]/20 animate-pulse" />
+    ),
+});
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -42,13 +50,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             }}
         >
             {/* Logo */}
-            <div className="h-16 flex items-center gap-3 px-5 shrink-0">
-                <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: "linear-gradient(135deg, #0A84FF, #5E5CE6)" }}
-                >
-                    <span className="text-white font-bold text-sm">G</span>
-                </div>
+            <div className="h-16 flex items-center gap-3 px-3 shrink-0">
+                <Globe3D size={44} />
                 {(!collapsed || mobile) && (
                     <div>
                         <span className="font-bold text-sm text-white tracking-tight">GlobalLife AI</span>
@@ -200,10 +203,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                             <Menu className="w-5 h-5 text-white" />
                         </button>
                         <div>
-                            <h1 className="text-lg font-bold text-white">
-                                Merhaba, {userName.split(" ")[0]}! 👋
+                            <h1 className="text-lg font-bold text-white leading-tight">
+                                Merhaba, {userName.split(" ")[0]}!
                             </h1>
-                            <p className="text-xs text-white/30">
+                            <p className="text-[10px] text-white/30 font-medium mt-0.5 uppercase tracking-wider">
                                 {new Date().toLocaleDateString("tr-TR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                             </p>
                         </div>
