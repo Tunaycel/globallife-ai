@@ -2,227 +2,415 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { BookOpen, Plane, TrendingUp, Trophy, Flame, Calendar, Lightbulb, ArrowRight } from "lucide-react";
+import {
+    BookOpen, Plane, Flame, Target, Trophy, Lightbulb,
+    ArrowRight, CheckCircle2, Circle, Clock, Mic, FileText, BookMarked, AudioLines
+} from "lucide-react";
 
 const fadeInUp = {
-    initial: { opacity: 0, y: 20 },
+    initial: { opacity: 0, y: 16 },
     animate: { opacity: 1, y: 0 },
 };
 
-export default function DashboardPage() {
-    return (
-        <div className="max-w-[1100px] mx-auto space-y-6">
-            {/* Welcome */}
-            <motion.div {...fadeInUp} transition={{ duration: 0.4 }}>
-                <h1 className="text-h2 text-[var(--text-primary)]">Merhaba, Kullanıcı! 👋</h1>
-                <p className="text-body text-[var(--text-secondary)] mt-1">
-                    {new Date().toLocaleDateString("tr-TR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                </p>
-            </motion.div>
+/* ── Streak Grid (deterministic) ── */
+const streakData = [
+    1, 0, 1, 1, 0, 1, 0,
+    1, 1, 0, 1, 1, 1, 0,
+    0, 1, 1, 1, 0, 1, 1,
+    1, 1, 1, 1, 1, 1, 1,
+];
 
-            {/* Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Daily Goal */}
+const tasks = [
+    { text: "Kelime Çalışması", done: true },
+    { text: "Okuma Pratiği (B1)", done: true },
+    { text: "Dinleme Egzersizi", done: true },
+    { text: "AI Konuşma Pratiği", done: false },
+    { text: "Vize Belge Kontrolü", done: false },
+];
+
+export default function DashboardPage() {
+    const completedTasks = tasks.filter((t) => t.done).length;
+    const progressPct = (completedTasks / tasks.length) * 100;
+
+    return (
+        <div className="max-w-[1100px] mx-auto space-y-5">
+            {/* ═══════ ROW 1: Daily Progress + Language + Achievements ═══════ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                {/* ── Günlük İlerleme ── */}
                 <motion.div
                     {...fadeInUp}
-                    transition={{ delay: 0.1 }}
-                    className="lg:col-span-2 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6"
+                    transition={{ duration: 0.5, delay: 0.05 }}
+                    className="lg:col-span-1 rounded-2xl p-6"
+                    style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                    }}
                 >
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                            🎯 Günlük Hedef
+                    <div className="flex items-center justify-between mb-5">
+                        <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
+                            <Target className="w-4 h-4 text-[#0A84FF]" />
+                            Günlük İlerleme
                         </h3>
-                        <span className="text-caption text-[var(--text-secondary)]">3/5 tamamlandı</span>
+                        <span className="text-[10px] text-white/30">•••</span>
                     </div>
-                    <div className="flex items-center gap-6">
-                        {/* Circular Progress */}
-                        <div className="relative w-24 h-24 shrink-0">
-                            <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" strokeWidth="8" />
+
+                    {/* Circular Progress */}
+                    <div className="flex justify-center mb-5">
+                        <div className="relative w-28 h-28">
+                            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
                                 <motion.circle
-                                    cx="50" cy="50" r="42" fill="none" stroke="#0A84FF" strokeWidth="8"
+                                    cx="50" cy="50" r="42" fill="none"
+                                    stroke="url(#progressGrad)"
+                                    strokeWidth="6"
                                     strokeLinecap="round"
                                     strokeDasharray={264}
                                     initial={{ strokeDashoffset: 264 }}
-                                    animate={{ strokeDashoffset: 264 * 0.4 }}
-                                    transition={{ duration: 1, delay: 0.5 }}
+                                    animate={{ strokeDashoffset: 264 * (1 - progressPct / 100) }}
+                                    transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
                                 />
+                                <defs>
+                                    <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#0A84FF" />
+                                        <stop offset="100%" stopColor="#5E5CE6" />
+                                    </linearGradient>
+                                </defs>
                             </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-[var(--text-primary)]">60%</span>
-                        </div>
-                        <div className="space-y-2 flex-1">
-                            {["AI Ders tamamla", "10 kelime öğren", "Speaking pratiği yap", "Belge yükle", "Günlük quizi çöz"].map((task, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm">
-                                    <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] ${i < 3 ? "bg-[#30D158] text-white" : "border border-[var(--text-tertiary)]"}`}>
-                                        {i < 3 && "✓"}
-                                    </div>
-                                    <span className={i < 3 ? "text-[var(--text-secondary)] line-through" : "text-[var(--text-primary)]"}>{task}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Streak */}
-                <motion.div
-                    {...fadeInUp}
-                    transition={{ delay: 0.15 }}
-                    className="lg:col-span-2 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6"
-                >
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                            <Flame className="w-5 h-5 text-[#FF9F0A]" /> Streak
-                        </h3>
-                        <span className="text-2xl font-bold text-[#FF9F0A]">12 Gün 🔥</span>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1.5">
-                        {Array.from({ length: 28 }).map((_, i) => {
-                            const active = Math.random() > 0.3;
-                            return (
-                                <div
-                                    key={i}
-                                    className={`aspect-square rounded-sm ${active
-                                            ? "bg-[#30D158]" + (Math.random() > 0.5 ? "/80" : "")
-                                            : "bg-[var(--surface)]"
-                                        }`}
-                                    title={active ? "Aktif" : "Eksik"}
-                                />
-                            );
-                        })}
-                    </div>
-                    <div className="flex items-center justify-between mt-3">
-                        <span className="text-xs text-[var(--text-tertiary)]">4 hafta önce</span>
-                        <span className="text-xs text-[var(--text-tertiary)]">Bugün</span>
-                    </div>
-                </motion.div>
-
-                {/* Language Progress */}
-                <motion.div
-                    {...fadeInUp}
-                    transition={{ delay: 0.2 }}
-                    className="lg:col-span-2 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6"
-                >
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                            <BookOpen className="w-5 h-5 text-[#0A84FF]" /> Dil Öğrenme
-                        </h3>
-                        <span className="px-2.5 py-1 rounded-full bg-[#0A84FF]/10 text-[#0A84FF] text-xs font-semibold">B1</span>
-                    </div>
-                    <div className="space-y-3">
-                        <div>
-                            <div className="flex items-center justify-between text-sm mb-1.5">
-                                <span className="text-[var(--text-secondary)]">İngilizce İlerleme</span>
-                                <span className="font-semibold text-[var(--text-primary)]">62%</span>
-                            </div>
-                            <div className="h-2 rounded-full bg-[var(--surface)]">
-                                <motion.div
-                                    className="h-full rounded-full bg-gradient-to-r from-[#0A84FF] to-[#5E5CE6]"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: "62%" }}
-                                    transition={{ duration: 1, delay: 0.3 }}
-                                />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <span className="text-2xl font-bold text-white">{progressPct.toFixed(0)}%</span>
+                                <span className="text-[10px] text-white/30">Tamamlandı</span>
                             </div>
                         </div>
-                        <p className="text-caption text-[var(--text-secondary)]">Son ders: Serbest Konuşma — 45 dk</p>
-                        <Link
-                            href="/dashboard/language"
-                            className="btn-primary !py-2.5 !px-5 !text-sm w-full text-center"
-                        >
-                            Derse Devam Et →
-                        </Link>
                     </div>
-                </motion.div>
 
-                {/* Visa Status */}
-                <motion.div
-                    {...fadeInUp}
-                    transition={{ delay: 0.25 }}
-                    className="lg:col-span-2 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6"
-                >
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
-                            <Plane className="w-5 h-5 text-[#5E5CE6]" /> Vize Durumu
-                        </h3>
-                        <span className="text-lg">🇩🇪</span>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm">
-                            <span className="text-[var(--text-secondary)]">Almanya — Öğrenci Vizesi</span>
-                        </div>
-                        <div className="space-y-2">
-                            {["Üniversite Araştırma", "Dil Yeterliliği", "Belgeler", "Randevu"].map((step, i) => (
-                                <div key={i} className="flex items-center gap-2 text-sm">
-                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${i < 2 ? "bg-[#30D158] text-white" : i === 2 ? "bg-[#0A84FF] text-white" : "border border-[var(--text-tertiary)]"
-                                        }`}>
-                                        {i < 2 ? "✓" : i === 2 ? "•" : ""}
-                                    </div>
-                                    <span className={i < 2 ? "text-[var(--text-secondary)]" : "text-[var(--text-primary)]"}>{step}</span>
-                                    {i === 2 && <span className="ml-auto text-xs text-[#0A84FF] font-medium">%60</span>}
-                                </div>
-                            ))}
-                        </div>
-                        <Link
-                            href="/dashboard/visa/roadmap"
-                            className="btn-ghost !py-2.5 !px-5 !text-sm w-full text-center"
-                        >
-                            Devam Et →
-                        </Link>
-                    </div>
-                </motion.div>
+                    <p className="text-xs text-white/30 text-center mb-4">{completedTasks}/{tasks.length} görev tamamlandı</p>
 
-                {/* Achievements */}
-                <motion.div
-                    {...fadeInUp}
-                    transition={{ delay: 0.3 }}
-                    className="rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6"
-                >
-                    <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2 mb-4">
-                        <Trophy className="w-5 h-5 text-[#FF9F0A]" /> Son Başarılar
-                    </h3>
-                    <div className="space-y-3">
-                        {[
-                            { emoji: "🏆", text: "10 Ders Tamamlandı", date: "2 gün önce" },
-                            { emoji: "⭐", text: "İlk IELTS Mock", date: "5 gün önce" },
-                            { emoji: "🔥", text: "7 Gün Streak", date: "1 hafta önce" },
-                        ].map((badge, i) => (
+                    {/* Task list */}
+                    <div className="space-y-2.5">
+                        {tasks.map((task, i) => (
                             <div key={i} className="flex items-center gap-3">
-                                <span className="text-xl">{badge.emoji}</span>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-[var(--text-primary)] truncate">{badge.text}</p>
-                                    <p className="text-[10px] text-[var(--text-tertiary)]">{badge.date}</p>
-                                </div>
+                                {task.done ? (
+                                    <CheckCircle2 className="w-4 h-4 text-[#30D158] shrink-0" />
+                                ) : (
+                                    <Circle className="w-4 h-4 text-white/15 shrink-0" />
+                                )}
+                                <span className={`text-xs ${task.done ? "text-white/30 line-through" : "text-white/70"}`}>
+                                    {task.text}
+                                </span>
                             </div>
                         ))}
                     </div>
                 </motion.div>
 
-                {/* AI Recommendations */}
+                {/* ── Dil Öğrenme ── */}
                 <motion.div
                     {...fadeInUp}
-                    transition={{ delay: 0.35 }}
-                    className="lg:col-span-3 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border)] p-6"
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="lg:col-span-2 rounded-2xl p-6"
+                    style={{
+                        background: "linear-gradient(145deg, rgba(10,132,255,0.08), rgba(94,92,230,0.05))",
+                        border: "1px solid rgba(10,132,255,0.12)",
+                    }}
                 >
-                    <h3 className="font-semibold text-[var(--text-primary)] flex items-center gap-2 mb-4">
-                        <Lightbulb className="w-5 h-5 text-[#FF9F0A]" /> AI Önerileri
-                    </h3>
-                    <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
+                            <BookOpen className="w-4 h-4 text-[#0A84FF]" />
+                            Dil Öğrenme
+                        </h3>
+                        <span
+                            className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                            style={{ background: "rgba(10,132,255,0.15)", color: "#0A84FF" }}
+                        >
+                            B1 Seviye
+                        </span>
+                    </div>
+
+                    <p className="text-xs text-white/40 mb-2">Almanca • Orta Seviye</p>
+
+                    <div className="flex items-end gap-2 mb-5">
+                        <span className="text-4xl font-bold text-white">62%</span>
+                        <span className="text-xs text-white/30 mb-1.5">Genel İlerleme</span>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="h-2 rounded-full mb-5" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: "linear-gradient(90deg, #0A84FF, #5E5CE6)" }}
+                            initial={{ width: 0 }}
+                            animate={{ width: "62%" }}
+                            transition={{ duration: 1, delay: 0.4 }}
+                        />
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-3 mb-5">
                         {[
-                            { emoji: "🎯", title: "IELTS Speaking Part 2 çalış", desc: "Bu hafta speaking pratiğin düşük, Part 2 cue card'lara odaklan." },
-                            { emoji: "📄", title: "Banka dökümünü yükle", desc: "Schengen belgelerinden 3 tanesi eksik. Banka dökümü ile başla." },
-                            { emoji: "📖", title: "Kelime çalışması yap", desc: "Dünkü derste 8 yeni kelime öğrendin. Tekrar zamanı!" },
-                            { emoji: "🗣️", title: "Telaffuz pratiği", desc: "Son derslerde 'th' sesleri skor: 65. Özel pratik önerilir." },
-                        ].map((rec, i) => (
-                            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-[var(--surface)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer">
-                                <span className="text-xl shrink-0">{rec.emoji}</span>
-                                <div>
-                                    <p className="text-sm font-medium text-[var(--text-primary)]">{rec.title}</p>
-                                    <p className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-2">{rec.desc}</p>
+                            { label: "Kelime", value: "1,240" },
+                            { label: "Ders", value: "24/40" },
+                            { label: "Puan", value: "850 XP" },
+                        ].map((stat, i) => (
+                            <div
+                                key={i}
+                                className="rounded-xl p-3 text-center"
+                                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.04)" }}
+                            >
+                                <p className="text-lg font-bold text-white">{stat.value}</p>
+                                <p className="text-[10px] text-white/30">{stat.label}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Link
+                        href="/dashboard/language"
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white transition-all hover:brightness-110"
+                        style={{ background: "linear-gradient(135deg, #0A84FF, #5E5CE6)" }}
+                    >
+                        Derse Devam Et <ArrowRight className="w-4 h-4" />
+                    </Link>
+                </motion.div>
+
+                {/* ── Son Başarılar ── */}
+                <motion.div
+                    {...fadeInUp}
+                    transition={{ duration: 0.5, delay: 0.15 }}
+                    className="lg:col-span-1 rounded-2xl p-6"
+                    style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                >
+                    <h3 className="font-semibold text-white flex items-center gap-2 text-sm mb-5">
+                        <Trophy className="w-4 h-4 text-[#FFD60A]" />
+                        Son Başarılar
+                    </h3>
+
+                    <div className="space-y-4">
+                        {[
+                            { icon: "⚡", title: "Hızlı Öğrenici", desc: "3 günde 5 ünite", color: "#0A84FF" },
+                            { icon: "🎙️", title: "Konuşma Ustası", desc: "10dk AI sohbeti", color: "#5E5CE6" },
+                            { icon: "📚", title: "Kelime Avcısı", desc: "500 yeni kelime", color: "#30D158" },
+                        ].map((badge, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <div
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                                    style={{ background: `${badge.color}15`, border: `1px solid ${badge.color}20` }}
+                                >
+                                    {badge.icon}
                                 </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-white truncate">{badge.title}</p>
+                                    <p className="text-[10px] text-white/30">{badge.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p className="text-[10px] text-white/20 mt-4 text-center">
+                        Sırada: <span className="text-[#FFD60A]">Kelime Avcısı</span> • 500 yeni kelime
+                    </p>
+                </motion.div>
+            </div>
+
+            {/* ═══════ ROW 2: Streak + Visa ═══════ */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                {/* ── 12 Gün Streak ── */}
+                <motion.div
+                    {...fadeInUp}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="rounded-2xl p-6"
+                    style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
+                            <Flame className="w-4 h-4 text-[#FF9F0A]" />
+                            12 Gün Streak
+                        </h3>
+                        <span
+                            className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                            style={{ background: "rgba(48,209,88,0.12)", color: "#30D158" }}
+                        >
+                            En İyi: 24 Gün
+                        </span>
+                    </div>
+
+                    <p className="text-xs text-white/30 mb-4">Harika gidiyorsun, zinciri kırma!</p>
+
+                    {/* Grid */}
+                    <div className="grid grid-cols-7 gap-1.5 mb-3">
+                        {streakData.map((active, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5 + i * 0.02 }}
+                                className="aspect-square rounded-sm"
+                                style={{
+                                    background: active
+                                        ? i >= 21
+                                            ? "#30D158"
+                                            : i >= 14
+                                                ? "rgba(48,209,88,0.6)"
+                                                : "rgba(48,209,88,0.3)"
+                                        : "rgba(255,255,255,0.04)",
+                                }}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-white/20">4 hafta önce</span>
+                        <span className="text-[10px] text-white/20">Bugün</span>
+                    </div>
+                </motion.div>
+
+                {/* ── Vize Durumu ── */}
+                <motion.div
+                    {...fadeInUp}
+                    transition={{ duration: 0.5, delay: 0.25 }}
+                    className="rounded-2xl p-6"
+                    style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                >
+                    <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
+                            <Plane className="w-4 h-4 text-[#5E5CE6]" />
+                            Vize Durumu
+                        </h3>
+                        <Link href="/dashboard/visa" className="text-[10px] text-white/30 hover:text-white/60 transition-colors flex items-center gap-1">
+                            Detaylar <ArrowRight className="w-3 h-3" />
+                        </Link>
+                    </div>
+                    <p className="text-xs text-white/30 mb-6">Öğrenci Vizesi • Almanya 🇩🇪</p>
+
+                    {/* Step tracker */}
+                    <div className="flex items-center justify-between mb-3 px-2">
+                        {[
+                            { label: "Üniversite", sub: "Kabul Alındı", status: "done" },
+                            { label: "Dil Yeterliliği", sub: "B1 Sertifika", status: "done" },
+                            { label: "Belgeler", sub: "Kontrol Ediliyor", status: "active" },
+                            { label: "Randevu", sub: "Bekliyor", status: "pending" },
+                        ].map((step, i) => (
+                            <div key={i} className="flex flex-col items-center text-center relative">
+                                {/* Connector line */}
+                                {i > 0 && (
+                                    <div
+                                        className="absolute top-3 right-full w-full h-0.5"
+                                        style={{
+                                            background: step.status === "pending"
+                                                ? "rgba(255,255,255,0.06)"
+                                                : step.status === "active"
+                                                    ? "linear-gradient(90deg, #30D158, #0A84FF)"
+                                                    : "#30D158",
+                                        }}
+                                    />
+                                )}
+                                {/* Dot */}
+                                <div
+                                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold mb-2 relative z-10"
+                                    style={{
+                                        background: step.status === "done"
+                                            ? "#30D158"
+                                            : step.status === "active"
+                                                ? "#0A84FF"
+                                                : "rgba(255,255,255,0.08)",
+                                        color: step.status === "pending" ? "rgba(255,255,255,0.3)" : "white",
+                                    }}
+                                >
+                                    {step.status === "done" ? "✓" : step.status === "active" ? "•" : i + 1}
+                                </div>
+                                <p className="text-[10px] font-medium text-white/70">{step.label}</p>
+                                <p className="text-[9px] text-white/30" style={step.status === "active" ? { color: "#0A84FF" } : {}}>
+                                    {step.sub}
+                                </p>
                             </div>
                         ))}
                     </div>
                 </motion.div>
             </div>
+
+            {/* ═══════ ROW 3: AI Önerileri ═══════ */}
+            <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="rounded-2xl p-6"
+                style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                }}
+            >
+                <h3 className="font-semibold text-white flex items-center gap-2 text-sm mb-5">
+                    <Lightbulb className="w-4 h-4 text-[#FFD60A]" />
+                    AI Önerileri
+                </h3>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                    {[
+                        {
+                            icon: Mic,
+                            color: "#FF453A",
+                            title: "IELTS Speaking İpucu",
+                            desc: "Geçmiş zaman kullanırken \"used to\" kalıbını daha sık kullanarak akıcılığını artırabilirsin."
+                        },
+                        {
+                            icon: FileText,
+                            color: "#5E5CE6",
+                            title: "Eksik Belge Uyarısı",
+                            desc: "Vize başvurusu için biyometrik fotoğrafını sisteme yüklemeyi unutma."
+                        },
+                        {
+                            icon: BookMarked,
+                            color: "#0A84FF",
+                            title: "Kelime Tekrarı",
+                            desc: "Geçen hafta öğrendiğin \"Wirtschaft\" (Ekonomi) konusundaki 10 kelimeyi tekrar etme zamanı."
+                        },
+                        {
+                            icon: AudioLines,
+                            color: "#30D158",
+                            title: "Telaffuz Analizi",
+                            desc: "\"ch\" sesini çıkarırken zorlanıyorsun. İşte senin için hazırladığım 2 dakikalık egzersiz."
+                        },
+                    ].map((rec, i) => {
+                        const Icon = rec.icon;
+                        return (
+                            <div
+                                key={i}
+                                className="flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+                                style={{
+                                    background: "rgba(255,255,255,0.02)",
+                                    border: "1px solid rgba(255,255,255,0.04)",
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                                    e.currentTarget.style.borderColor = `${rec.color}30`;
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.04)";
+                                }}
+                            >
+                                <div
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                                    style={{ background: `${rec.color}12`, border: `1px solid ${rec.color}20` }}
+                                >
+                                    <Icon className="w-4 h-4" style={{ color: rec.color }} />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-white mb-0.5">{rec.title}</p>
+                                    <p className="text-[11px] text-white/35 leading-relaxed line-clamp-2">{rec.desc}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </motion.div>
         </div>
     );
 }

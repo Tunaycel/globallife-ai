@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { locales } from "@/lib/i18n";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Menu, X, ChevronDown, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export default function Navbar() {
     const [langOpen, setLangOpen] = useState(false);
 
     const { locale, setLocale, t } = useLocale();
+    const { data: session } = useSession();
     const langRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -145,19 +147,32 @@ export default function Navbar() {
 
 
 
-                        <Link
-                            href="/auth/login"
-                            className="px-4 py-2 text-sm font-medium text-[rgba(255,255,255,0.6)] hover:text-white transition-colors"
-                        >
-                            {t("nav", "login") as string}
-                        </Link>
-                        <Link
-                            href="/auth/register"
-                            className="px-5 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-[0_0_20px_rgba(10,132,255,0.4)]"
-                            style={{ background: "linear-gradient(135deg, #00DC82, #00E5FF)", color: "#030308" }}
-                        >
-                            {t("nav", "getStarted") as string}
-                        </Link>
+                        {session ? (
+                            <Link
+                                href="/dashboard"
+                                className="flex items-center gap-2.5 px-5 py-2 text-sm font-semibold text-[#030308] rounded-lg transition-all hover:shadow-[0_0_20px_rgba(0,220,130,0.4)]"
+                                style={{ background: "linear-gradient(135deg, #00DC82, #00E5FF)" }}
+                            >
+                                <LayoutDashboard className="w-4 h-4" />
+                                <span>Dashboard</span>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/auth/login"
+                                    className="px-4 py-2 text-sm font-medium text-[rgba(255,255,255,0.6)] hover:text-white transition-colors"
+                                >
+                                    {t("nav", "login") as string}
+                                </Link>
+                                <Link
+                                    href="/auth/register"
+                                    className="px-5 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-[0_0_20px_rgba(10,132,255,0.4)]"
+                                    style={{ background: "linear-gradient(135deg, #00DC82, #00E5FF)", color: "#030308" }}
+                                >
+                                    {t("nav", "getStarted") as string}
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile toggle */}
